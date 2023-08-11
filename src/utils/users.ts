@@ -9,7 +9,6 @@ export function userJoin(id, username, room) {
 
 //get the current user
 export function getCurrentUser (id) {
-    console.log(users);
     return users.find(user => user.id === id);
 }
 
