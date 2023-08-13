@@ -6,8 +6,7 @@ const mongArticle = require('../schemas/articles');
 //
 
 //UTILS
-//const authenticate = require('../utils/auth');
-import { authenticateToken } from '../utils/auth';
+
 //
 
 const app = express();

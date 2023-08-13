@@ -31,6 +31,7 @@ import { connectDB } from './config/db';
 import {chatSocket} from './routes/chat';
 const articleRoute = require('./routes/article');
 const authRoute = require('./routes/authorization');
+const usersRoute = require('./routes/users');
 //
 
 //UTILS
@@ -55,6 +56,7 @@ app.use('/api', authenticateToken);
 chatSocket(server);
 app.use(articleRoute);
 app.use(authRoute);
+app.use(usersRoute);
 
 //const botName = 'StageSpace bot';
 

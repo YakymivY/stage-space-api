@@ -13,8 +13,7 @@ const mongDirector = require('../schemas/directors');
 //
 
 //UTILS
-//const authenticate = require('../utils/auth');
-import { authenticateToken } from '../utils/auth';
+
 //
 
 const app = express();
@@ -121,7 +120,7 @@ app.post('/register-actor', async (req, res) => {
     }
   });
   
-  app.get('/api/get-name', authenticateToken, (req, res) => {
+  app.get('/api/get-name', (req, res) => {
     res.json(req.user.name);
   });
 
