@@ -121,7 +121,9 @@ app.post('/register-actor', async (req, res) => {
   });
   
   app.get('/api/get-name', (req, res) => {
-    res.json(req.user.name);
+    const username = req.user.name;
+    const id = req.user.id;
+    res.json({username, id});
   });
 
 module.exports = app;

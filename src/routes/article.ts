@@ -15,11 +15,13 @@ app.use(express.json());
 app.use(cors({ origin: 'http://localhost:4201' }));
 
 app.post("/api/post-article", async (req, res) => {
-    const { title, description, image } = req.body;
+    const { title, description, image, username, id } = req.body;
     const article = new mongArticle({
+        username,
         title,
         description,
-        image
+        image,
+        userId: id
     });
     try {
         const result = await article.save();
@@ -54,7 +56,7 @@ app.post("/api/post-article", async (req, res) => {
         const id = req.query.id;
         await mongArticle.findByIdAndDelete(id);
         const result =  await mongArticle.find().sort({ date: 'desc' });
-        res.status(200).json({redirect: "/articles", articles: result});
+        res.status(200).json({redirect: "/articles/all", articles: result});
     } catch {
         res.status(400).json("error");
     }

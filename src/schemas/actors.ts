@@ -11,7 +11,7 @@ const ActorSchema = new mongoose.Schema({
         required: true
     },
     username: String,
-    token: String,
+    token: String
 }, { collection: 'actors' });
 
 const Actor = mongoose.model('Actor', ActorSchema);

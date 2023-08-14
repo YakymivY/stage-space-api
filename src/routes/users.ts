@@ -14,12 +14,25 @@ app.use(cors({ origin: 'http://localhost:4201' }));
 
 
 app.get('/api/get-users', async (req, res) => {
+    console.log("get users request made");
     try {
-        const actors = await mongActor.find();
-        const directors = await mongDirector.find();
+        const actors = await mongActor.find({}, { _id: 1, email: 1, username: 1 });
+        const directors = await mongDirector.find({}, { _id: 1, email: 1, username: 1 });
 
         res.status(200).json({actors, directors});
     } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+app.get('/api/get-user', async (req, res) => {
+    const userId = req.query.id;
+    try {
+        let foundUser = await mongActor.findOne({_id: userId}, { _id: 1, email: 1, username: 1 });
+        if (foundUser === null) foundUser = await mongDirector.findOne({_id: userId}, { _id: 1, email: 1, username: 1 });
+        res.status(200).json({ user: foundUser });
+    } catch(error) {
         console.error(error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
