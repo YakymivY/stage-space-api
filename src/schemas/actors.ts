@@ -11,6 +11,9 @@ const ActorSchema = new mongoose.Schema({
         required: true
     },
     username: String,
+    profilePicture: {
+        type: String
+    },
     token: String
 }, { collection: 'actors' });
 

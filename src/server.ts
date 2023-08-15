@@ -33,6 +33,7 @@ import {chatSocket} from './routes/chat';
 const articleRoute = require('./routes/article');
 const authRoute = require('./routes/authorization');
 const usersRoute = require('./routes/users');
+const profileRoute = require('./routes/profile');
 //
 
 //UTILS
@@ -59,6 +60,7 @@ chatSocket(server);
 app.use(articleRoute);
 app.use(authRoute);
 app.use(usersRoute);
+app.use(profileRoute);
 
 //const botName = 'StageSpace bot';
 

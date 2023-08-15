@@ -120,10 +120,27 @@ app.post('/register-actor', async (req, res) => {
     }
   });
   
-  app.get('/api/get-name', (req, res) => {
+  app.get('/api/get-token-user', (req, res) => {
     const username = req.user.name;
     const id = req.user.id;
-    res.json({username, id});
+    const email = req.user.email;
+    const role = req.user.role;
+    res.json({username, id, email, role});
+  });
+
+  app.get('/api/get-profile-picture', async (req, res) => {
+    const userId = req.user.id;
+    let userImage;
+    try {
+      if(req.user.role === "actor") {
+        userImage = await mongActor.findOne({_id: userId}).select('profilePicture');
+      } else {
+        userImage = await mongDirector.findOne({_id: userId}).select('profilePicture');
+      }
+      res.status(200).json({status: "Picture found", image: userImage});
+    } catch (error) {
+      res.status(502).json({status: "error"});
+    }
   });
 
 module.exports = app;
