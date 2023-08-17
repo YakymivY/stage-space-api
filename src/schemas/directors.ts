@@ -1,22 +1,11 @@
 import mongoose from 'mongoose';
 
+const User = require('./users');
+
 const DirectorSchema = new mongoose.Schema({
-    email: {
-        type: String,
-        required: true,
-        unique: true
-    }, 
-    password: {
-        type: String,
-        required: true
-    },
-    username: String,
-    profilePicture: {
-        type: String
-    },
-    token: String,
+    //some specific fields for director
 }, { collection: 'directors' });
 
-const Director = mongoose.model('Director', DirectorSchema);
+const Director = User.discriminator('Director', DirectorSchema);
 
 module.exports = Director;

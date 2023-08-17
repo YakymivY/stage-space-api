@@ -1,22 +1,11 @@
 import mongoose from 'mongoose';
 
+const User = require('./users');
+
 const ActorSchema = new mongoose.Schema({
-    email: {
-        type: String,
-        required: true,
-        unique: true
-    }, 
-    password: {
-        type: String,
-        required: true
-    },
-    username: String,
-    profilePicture: {
-        type: String
-    },
-    token: String
+    //some specific fields for actor
 }, { collection: 'actors' });
 
-const Actor = mongoose.model('Actor', ActorSchema);
+const Actor = User.discriminator('Actor', ActorSchema);
 
 module.exports = Actor;

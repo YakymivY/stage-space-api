@@ -14,6 +14,8 @@ const app = express();
 app.use(express.json());
 app.use(cors({ origin: 'http://localhost:4201' }));
 
+//new-article.component -> article.service
+//create a new article in the db
 app.post("/api/post-article", async (req, res) => {
     const { title, description, image, username, id } = req.body;
     const article = new mongArticle({
@@ -30,7 +32,9 @@ app.post("/api/post-article", async (req, res) => {
         res.status(500).json({error: e});
     }
   });
-  
+
+  //article.component -> article.service
+  //get article based on id
   app.get("/api/get-article", async (req, res) => {
     const id = req.query.id;
     try {
@@ -41,7 +45,9 @@ app.post("/api/post-article", async (req, res) => {
         res.status(400).json({ error: 'Invalid article ID' })
     }
   });
-  
+
+  //blog.component -> article.service
+  //get all articles
   app.get("/api/articles", async (req, res) => {
     try {
         const articles = await mongArticle.find().sort({ date: 'desc' });
@@ -51,14 +57,16 @@ app.post("/api/post-article", async (req, res) => {
     }
   });
   
+  //blog.component -> article.service
+  //delete article based on id
   app.delete('/api/delete-article', async (req, res) => {
+    const id = req.query.id;
     try {
-        const id = req.query.id;
         await mongArticle.findByIdAndDelete(id);
         const result =  await mongArticle.find().sort({ date: 'desc' });
         res.status(200).json({redirect: "/articles/all", articles: result});
     } catch {
-        res.status(400).json("error");
+        res.status(400).json({ error: "Internal Server Error" });
     }
 });
 
