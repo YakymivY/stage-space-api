@@ -6,7 +6,7 @@ const mongArticle = require('../schemas/articles');
 //
 
 //UTILS
-
+import { getFollowings } from '../utils/users';
 //
 
 const app = express();
@@ -50,7 +50,8 @@ app.post("/api/post-article", async (req, res) => {
   //get all articles
   app.get("/api/articles", async (req, res) => {
     try {
-        const articles = await mongArticle.find().sort({ date: 'desc' });
+        const follows = await getFollowings(req.user.id);
+        const articles = await mongArticle.find({ userId: { $in: follows } }).sort({ date: 'desc' });
         res.status(200).json(articles);
     } catch {
         res.json("error");

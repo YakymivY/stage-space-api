@@ -81,14 +81,24 @@ app.delete('/api/unfollow-user', async (req, res) => {
     const followerId = req.user.id;
     const followingId = req.query.id;
     try {
-        const result = await mongFollow.deleteOne({ follower: followerId, following: followingId });
+        await mongFollow.deleteOne({ follower: followerId, following: followingId });
         res.status(200).json({ status: "User unfollowed" });
     } catch (error) {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 
-
+//blog.component -> article.service
+//get user followings
+// app.get('/api/get-followings', async (req, res) => {
+//     const followerId = req.user.id;
+//     try {
+//         const followings = await mongFollow.find({follower: followerId}).populate('follower');
+//         res.status(200).json({ followings });
+//     } catch (error) {
+//         res.status(500).json({ error: 'Internal Server Error' });
+//     }
+// });
 
 
 

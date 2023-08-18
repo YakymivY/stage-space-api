@@ -1,5 +1,9 @@
 const users = [];
 
+//DATABASE
+const mongFollow = require('../schemas/follow');
+//
+
 //join user to chat 
 export function userJoin(id, username, room) {
     const user = { id, username, room };
@@ -24,4 +28,12 @@ export function userLeave(id) {
 //get room users 
 export function getRoomUsers (room) {
     return users.filter(user => user.room === room);
+}
+
+//get user followings
+export async function getFollowings (followerId: string) {
+    const followingsArray = [];
+    const followings = await mongFollow.find({follower: followerId}).populate('follower');
+    followings.forEach(item => followingsArray.push(item.following));
+    return followingsArray;
 }
