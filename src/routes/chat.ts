@@ -5,11 +5,11 @@ import * as socketio from 'socket.io';
 
 //DATABASE
 const mongRoom = require('../../../back/src/schemas/rooms');
+const mongMessage = require('../../../back/src/schemas/messages');
 //
 
 //UTILS
-import { formatMessage } from '../utils/messages';
-import { userJoin, getCurrentUser, userLeave, getRoomUsers } from '../utils/users';
+import { formatMessage, formatPreviousMessages, formatImage } from '../utils/messages';
 //
 
 const app = express();
@@ -77,6 +77,7 @@ export function chatSocket(server) {
                     roomId = newRoom._id;
                 }
                 //join the room
+                roomId = roomId.toString();
                 socket.join(roomId);
 
                 //get users from another collection
@@ -90,49 +91,69 @@ export function chatSocket(server) {
                 //bot greeting
                 socket.emit('message', formatMessage(botName, 'Welcome to StageSpace!'));
 
+                //getting previous messages of the room
+                const prevMessages = await mongMessage.find({ room: roomId }).populate('sender').select('sender content image timestamp').sort({ date: 'desc' });
+
                 //send users and room info
-                io.to(roomId).emit('roomUsers', {
+                io.to(roomId).emit('roomData', {
                     room: receiver.username,
-                    users: roomWithParticipants.participants
+                    users: roomWithParticipants.participants,
+                    messages: formatPreviousMessages(prevMessages)
                 });
 
             } catch(error) {
                 console.log(error);
             }
-        
-            // socket.emit('message', formatMessage(botName, 'Welcome to StageSpace!'));
-            // //broadcast when a user connects 
-            // socket.broadcast.to(user.room).emit('message', formatMessage(botName, `${user.username} has joined the chat!`));
-        
-            // //send users and room info
-            // io.to(user.room).emit('roomUsers', {
-            //     room: user.room,
-            //     users: getRoomUsers(user.room)
-            // }); 
         });
     
         //listen for chat message
-        socket.on('chatMessage', (message) => {
-            io.to(roomId).emit('message', formatMessage(sender.username, message));
+        socket.on('chatMessage', async (message) => {
+            //creating message object
+            const messageObj = formatMessage(sender.username, message);
+
+            //saving message to the db
+            const msg = new mongMessage({
+                sender: sender._id,
+                receiver: receiver._id,
+                content: message,
+                room: roomId
+            });
+
+            try{
+                await msg.save();
+            } catch(error) {
+                console.log(error);
+            }
+
+            //sending object to frontend
+            io.to(roomId).emit('message', messageObj);
         });
     
         //listen for file massage
-        socket.on('fileMessage', (obj) => {
-            const user = getCurrentUser(socket.id);
-            io.to(user.room).emit('message-photo', {message: formatMessage(user.username, obj.fileName), photo: obj});
+        socket.on('fileMessage', async (img: string) => {
+            const imageObj = formatImage(sender.username, img);
+            
+            //saving message with a photo to the db
+            const imageMessage = new mongMessage({
+                sender: sender._id,
+                receiver: receiver._id,
+                image: img,
+                room: roomId
+            });
+
+            try{
+                await imageMessage.save();
+            } catch(error) {
+                console.log(error);
+            }
+
+            //sending photo object to frontend
+            io.to(roomId).emit('message-photo', imageObj);
         })
     
         //runs when client disconnects 
         socket.on('disconnect', () => {
-            // const user = userLeave(socket.id);
-            // if (user) {
-            //     io.to(user.room).emit('message', formatMessage(botName, `${user.username} has left the chat.`));
-            // }
-            //send users and room info
-            // io.to(user.room).emit('roomUsers', {
-            //     room: user.room,
-            //     users: getRoomUsers(user.room)
-            // }); 
+
         });
     });
 }

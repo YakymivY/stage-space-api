@@ -12,6 +12,10 @@ const MessageSchema = new mongoose.Schema({
     content: {
         type: String
     },
+    image: {
+        type: String,
+        default: null
+    },
     timestamp: {
         type: Date,
         default: Date.now()
@@ -21,3 +25,7 @@ const MessageSchema = new mongoose.Schema({
         ref: 'Room'
     }
 }, { collection: 'messages' });
+
+const Message = mongoose.model('Message', MessageSchema);
+
+module.exports = Message;
