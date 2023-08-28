@@ -1,10 +1,7 @@
 import express from 'express';
-import cors from 'cors';
 
 //DATABASE
 const mongUser = require('../schemas/users');
-// const mongActor = require('../schemas/actors');
-// const mongDirector = require('../schemas/directors');
 //
 
 //UTILS
@@ -14,7 +11,6 @@ const mongUser = require('../schemas/users');
 const app = express();
 
 app.use(express.json());
-app.use(cors({ origin: 'http://localhost:4201' }));
 
 //my-profile.component -> profile.service
 //set profile picture and save to the db

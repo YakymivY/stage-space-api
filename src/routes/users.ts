@@ -1,5 +1,4 @@
 import express from 'express';
-import cors from 'cors';
 
 //DATABASE
 const mongUser = require('../schemas/users');
@@ -12,7 +11,6 @@ const mongFollow = require('../schemas/follow');
 const app = express();
 
 app.use(express.json());
-app.use(cors({ origin: 'http://localhost:4201' }));
 
 
 //start.component -> start.service
@@ -20,7 +18,7 @@ app.use(cors({ origin: 'http://localhost:4201' }));
 app.get('/api/get-users', async (req, res) => {
     try {
         //returns list of users
-        const users = await mongUser.find({}, { _id: 1, email: 1, username: 1, role: 1 })
+        const users = await mongUser.find({ _id: { $ne: req.user.id }}, { _id: 1, email: 1, username: 1, role: 1 });
 
         //returns list of follows
         const myId = req.user.id;
@@ -87,18 +85,6 @@ app.delete('/api/unfollow-user', async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
-
-//blog.component -> article.service
-//get user followings
-// app.get('/api/get-followings', async (req, res) => {
-//     const followerId = req.user.id;
-//     try {
-//         const followings = await mongFollow.find({follower: followerId}).populate('follower');
-//         res.status(200).json({ followings });
-//     } catch (error) {
-//         res.status(500).json({ error: 'Internal Server Error' });
-//     }
-// });
 
 
 

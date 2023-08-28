@@ -1,5 +1,4 @@
 import express from 'express';
-import cors from 'cors';
 
 //DATABASE
 const mongArticle = require('../schemas/articles');
@@ -12,7 +11,6 @@ import { getFollowings } from '../utils/users';
 const app = express();
 
 app.use(express.json());
-app.use(cors({ origin: 'http://localhost:4201' }));
 
 //new-article.component -> article.service
 //create a new article in the db
@@ -64,8 +62,8 @@ app.post("/api/post-article", async (req, res) => {
     const id = req.query.id;
     try {
         await mongArticle.findByIdAndDelete(id);
-        const result =  await mongArticle.find().sort({ date: 'desc' });
-        res.status(200).json({redirect: "/articles/all", articles: result});
+        await mongArticle.find().sort({ date: 'desc' });
+        res.status(200).json({redirect: "/articles/all"});
     } catch {
         res.status(400).json({ error: "Internal Server Error" });
     }

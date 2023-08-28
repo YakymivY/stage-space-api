@@ -1,6 +1,5 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
-import cors from 'cors';
 import jwt from 'jsonwebtoken';
 
 if(process.env.NODE_ENV !== 'production') {
@@ -9,8 +8,6 @@ if(process.env.NODE_ENV !== 'production') {
 
 //DATABASE
 const mongUser = require('../schemas/users');
-// const mongActor = require('../schemas/actors');
-// const mongDirector = require('../schemas/directors');
 //
 
 //UTILS
@@ -20,7 +17,6 @@ const mongUser = require('../schemas/users');
 const app = express();
 
 app.use(express.json());
-app.use(cors({ origin: 'http://localhost:4201' }));
 
 //register.component -> auth.service
 app.post('/register', async (req, res) => {

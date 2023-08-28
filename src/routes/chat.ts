@@ -1,5 +1,4 @@
 import express from 'express';
-import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import * as socketio from 'socket.io';
 
@@ -19,7 +18,6 @@ if(process.env.NODE_ENV !== 'production') {
 }
 
 app.use(express.json());
-app.use(cors({ origin: 'http://localhost:4201' }));
 
 export function chatSocket(server) {
 
