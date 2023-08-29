@@ -2,6 +2,7 @@ import express from 'express';
 
 //DATABASE
 const mongArticle = require('../schemas/articles');
+const mongLike = require('../schemas/likes');
 //
 
 //UTILS
@@ -65,6 +66,39 @@ app.post("/api/post-article", async (req, res) => {
         await mongArticle.find().sort({ date: 'desc' });
         res.status(200).json({redirect: "/articles/all"});
     } catch {
+        res.status(400).json({ error: "Internal Server Error" });
+    }
+});
+
+//blog.component -> article.service
+//like post
+app.post('/api/like', async (req, res) => {
+    const postId = req.body.articleId;
+    const userId = req.user.id;
+
+    const like = new mongLike({
+        userId,
+        postId
+    });
+
+    try {
+        await like.save();
+        res.status(200).json({status: "success"});
+    } catch(error) {
+        res.status(400).json({ error: "Internal Server Error" });
+    }
+});
+
+//blog.component -> article.service
+//dislike post
+app.delete('/api/dislike', async (req, res) => {
+    const postId = req.query.articleId;
+    const userId = req.user.id;
+
+    try {
+        await mongLike.findOneAndDelete({ userId, postId });
+        res.status(200).json({status: "success"});
+    } catch(error) {
         res.status(400).json({ error: "Internal Server Error" });
     }
 });
