@@ -34,7 +34,7 @@ export function getRoomUsers (room) {
 export async function getFollowings (followerId: string) {
     const followingsArray = [];
     const followings = await mongFollow.find({follower: followerId}).populate('follower');
-    followings.forEach(item => followingsArray.push(item.following));
+    followings.forEach(item => followingsArray.push(item.following.toString()));
     followingsArray.push(followerId);
     return followingsArray;
 }

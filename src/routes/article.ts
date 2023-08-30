@@ -48,9 +48,57 @@ app.post("/api/post-article", async (req, res) => {
   //blog.component -> article.service
   //get all articles
   app.get("/api/articles", async (req, res) => {
+    const myUserId = req.user.id;
     try {
         const follows = await getFollowings(req.user.id);
-        const articles = await mongArticle.find({ userId: { $in: follows } }).sort({ date: 'desc' });
+
+        const articles = await mongArticle.aggregate([
+            { $match: { userId: { $in: follows } } },
+            {
+                $lookup: {
+                    from: 'likes',
+                    localField: '_id',
+                    foreignField: 'postId',
+                    as: 'likes'
+                }
+            },
+            {
+                $addFields: {
+                  likedUserIds: {
+                    $map: {
+                      input: '$likes',
+                      as: 'like',
+                      in: '$$like.userId'
+                    }
+                  }
+                }
+            },
+            {
+                $project: {
+                    username: 1,
+                    userId: 1,
+                    title: 1,
+                    description: 1,
+                    date: 1,
+                    image: 1,
+                    likedUserIds: 1
+                }
+            },
+            { $sort: { date: -1 } }
+        ]);
+
+        ///////////?????????????????????????????
+        articles.forEach(article => {
+            for (let i = 0; i < article.likedUserIds.length; i++) {
+                if (article.likedUserIds[i].toString() == myUserId) {
+                    article.isLiked = true;
+                    continue;
+                } else {
+                    article.isLiked = false;
+                }
+            }
+        });
+
         res.status(200).json(articles);
     } catch {
         res.json("error");
