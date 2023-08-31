@@ -3,6 +3,7 @@ import express from 'express';
 //DATABASE
 const mongArticle = require('../schemas/articles');
 const mongLike = require('../schemas/likes');
+import { Comment as mongComment } from '../schemas/comments';
 //
 
 //UTILS
@@ -147,6 +148,40 @@ app.delete('/api/dislike', async (req, res) => {
         await mongLike.findOneAndDelete({ userId, postId });
         res.status(200).json({status: "success"});
     } catch(error) {
+        res.status(400).json({ error: "Internal Server Error" });
+    }
+});
+
+//blog.component -> article.service
+//posting comment into the db
+app.post('/api/comment', async (req, res) => {
+    const { articleId, comment } = req.body;
+    const userId = req.user.id;
+
+    const com = new mongComment({
+        userId, 
+        postId: articleId,
+        comment
+    });
+
+    try {
+        await com.save();
+        res.status(200).json({status: "success"});
+    } catch(error) {
+        res.status(400).json({ error: "Internal Server Error" });
+    }
+});
+
+//blog.component -> article.service
+//load comments for the post
+app.get('/api/get-comments', async (req, res) => {
+    const postId = req.query.articleId;
+
+    try {
+        //getting comments with userinfo
+        const postComments = await mongComment.find({ postId }).populate({path: 'userId', select: 'username'}).select('comment userId');
+        res.status(200).json({status: "success", comments: postComments});
+    } catch (error) {
         res.status(400).json({ error: "Internal Server Error" });
     }
 });
