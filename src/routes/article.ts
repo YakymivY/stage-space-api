@@ -152,6 +152,28 @@ app.delete('/api/dislike', async (req, res) => {
     }
 });
 
+app.get('/api/get-like-users', async (req, res) => {
+    const myUserId = req.user.id;
+    const follows = await getFollowings(req.user.id);
+    const postId = req.query.articleId;
+
+    try {
+        const likes = await mongLike.find({postId}).populate('userId', '_id username').select('userId');
+
+        let likesArray = [];
+        likes.forEach(element => {
+            const resLike = {
+                userId: element.userId._id,
+                username: element.userId.username
+            }
+            likesArray.push(resLike);
+        });
+        res.status(200).json({status: "success", likes: likesArray});
+    } catch(error) {
+        res.status(400).json({ error: "Internal Server Error" });
+    }
+});
+
 //blog.component -> article.service
 //posting comment into the db
 app.post('/api/comment', async (req, res) => {
@@ -166,7 +188,17 @@ app.post('/api/comment', async (req, res) => {
 
     try {
         await com.save();
-        res.status(200).json({status: "success"});
+
+        //creating object to return to frontend
+        const resComment = {
+            comment: com.comment,
+            userId: {
+                _id: req.user.id,
+                username: req.user.name
+            }
+        }
+        
+        res.status(200).json({status: "success", resComment});
     } catch(error) {
         res.status(400).json({ error: "Internal Server Error" });
     }
