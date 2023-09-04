@@ -9,7 +9,7 @@ export function formatMessage (username: string, text: string) {
     };
 }
 
-export function formatPreviousMessages (previous: []) {
+export function formatPreviousMessages (previous: any) {
     let result = [];
     previous.forEach((element: any) => {
         result.push({

@@ -1,9 +1,9 @@
 import express from 'express';
 
 //DATABASE
-const mongArticle = require('../schemas/articles');
-const mongLike = require('../schemas/likes');
-import { Comment as mongComment } from '../schemas/comments';
+import { mongArticle } from '../schemas/articles';
+import { mongLike} from '../schemas/likes';
+import { mongComment } from '../schemas/comments';
 //
 
 //UTILS
@@ -161,7 +161,7 @@ app.get('/api/get-like-users', async (req, res) => {
         const likes = await mongLike.find({postId}).populate('userId', '_id username').select('userId');
 
         let likesArray = [];
-        likes.forEach(element => {
+        likes.forEach((element: any) => {
             const resLike = {
                 userId: element.userId._id,
                 username: element.userId.username

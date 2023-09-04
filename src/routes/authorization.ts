@@ -7,7 +7,7 @@ if(process.env.NODE_ENV !== 'production') {
 }
 
 //DATABASE
-const mongUser = require('../schemas/users');
+import { mongUser } from '../schemas/users';
 //
 
 //UTILS

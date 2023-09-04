@@ -1,11 +1,9 @@
 import express from 'express';
 
 //DATABASE
-const mongUser = require('../schemas/users');
-const mongActor = require('../schemas/actors');
-const mongDirector = require('../schemas/directors');
-const mongArticle = require('../schemas/articles');
-const mongFollow = require('../schemas/follow');
+import { mongUser } from '../schemas/users';
+import { mongArticle } from '../schemas/articles';
+import { mongFollow } from '../schemas/follow';
 //
 
 const app = express();

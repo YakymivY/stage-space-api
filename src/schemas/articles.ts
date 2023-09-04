@@ -25,6 +25,4 @@ const ArticleSchema = new mongoose.Schema({
     }
 });
 
-const Article = mongoose.model("articles", ArticleSchema);
-
-module.exports = Article;
+export const mongArticle = mongoose.model("articles", ArticleSchema);

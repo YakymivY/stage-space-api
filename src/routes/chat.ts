@@ -3,8 +3,8 @@ import jwt from 'jsonwebtoken';
 import * as socketio from 'socket.io';
 
 //DATABASE
-const mongRoom = require('../../../back/src/schemas/rooms');
-const mongMessage = require('../../../back/src/schemas/messages');
+import { mongRoom } from '../../../back/src/schemas/rooms';
+import { mongMessage } from '../../../back/src/schemas/messages';
 //
 
 //UTILS
