@@ -7,7 +7,7 @@ const ArticleSchema = new mongoose.Schema({
     },
     userId: {
         required: true,
-        type: String
+        type: mongoose.Schema.Types.ObjectId
     },
     title: {
         required: true,
