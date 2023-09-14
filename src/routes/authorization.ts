@@ -1,6 +1,7 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import nodemailer from 'nodemailer';
 
 if(process.env.NODE_ENV !== 'production') {
     require('dotenv').config();
@@ -136,6 +137,36 @@ app.get('/check-email', async (req, res) => {
   } catch(error) {
     res.status(500).json({error: "Internal Server Error"});
   }
+});
+
+//register.component -> auth.service
+//send email to a user with verification code
+app.post('/send-email', (req, res) => {
+  const { email, verification_code } = req.body;
+
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'berk.keytret@gmail.com',
+      pass: 'rywauddjwfysslzp'
+    }
+  });
+
+  const mailOptions = {
+    from: 'berk.keytret@gmail.com',
+    to: email,
+    subject: 'Sending Email using Node.js',
+    text: `Here is your code: ${verification_code}`
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log('Email sent: ' + info.response);
+    }
+  });
+
 });
 
 module.exports = app;

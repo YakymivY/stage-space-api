@@ -18,6 +18,9 @@ const UserSchema = new mongoose.Schema({
     profilePicture: {
         type: String
     },
+    verification_code: {
+        type: Number
+    },
     token: String,
 }, { collection: 'users' });
 
