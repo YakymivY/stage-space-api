@@ -12,14 +12,10 @@ const UserSchema = new mongoose.Schema({
     },
     username: String,
     role: {
-        type: String,
-        required: true
+        type: String
     },
     profilePicture: {
         type: String
-    },
-    verification_code: {
-        type: Number
     },
     token: String,
 }, { collection: 'users' });

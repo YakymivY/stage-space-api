@@ -10,6 +10,7 @@ if(process.env.NODE_ENV !== 'production') {
 //DATABASE
 import { mongUser } from '../schemas/users';
 import { mongProfile } from '../schemas/profile';
+import { mongCode } from '../schemas/codes'
 //
 
 //UTILS
@@ -20,43 +21,56 @@ const app = express();
 
 app.use(express.json());
 
+app.post('/create-user', async (req, res) => {
+  const { name, surname, email, password } = req.body;
+  const username = name + ' ' + surname;
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  try {
+    const user = new mongUser({
+      email,
+      password: hashedPassword,
+      username
+    });
+    await user.save();
+
+    const userId = user._id;
+    const emailCode = Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000;
+    const phoneCode = Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000;
+
+    const code = new mongCode({
+      userId, 
+      emailCode,
+      phoneCode
+    });
+    await code.save();
+
+    res.status(200).json({status: "success", id: userId});
+  } catch(error) {
+    console.log(error);
+    res.status(500).json({error: "Internal Server Error"});
+  }
+});
+
 //register.component -> auth.service
 app.post('/register', async (req, res) => {
   try {
-    const { email, password, name, surname, birthdate, institution, status, phone, proffesion, works } = req.body.data;
+    const { userId, name, surname, birthdate, institution, status, phone, proffesion, works } = req.body.data;
+    
+    const profile = new mongProfile ({
+      userId,
+      name,
+      surname,
+      birthdate,
+      institution, 
+      status,
+      phone,
+      proffesion,
+      works
+    });
+    await profile.save();
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const response = await mongUser.findOne({email});
-    if(response) {
-      res.json({status: "incorrect"});
-    } else {
-      const user = new mongUser ({
-        email,
-        password: hashedPassword,
-        username: name,
-        role: proffesion,
-        token: "token"
-      });
-      await user.save();
-
-      const userId = user._id;
-      
-      const profile = new mongProfile ({
-        userId,
-        name, 
-        surname,
-        birthdate,
-        institution, 
-        status,
-        phone,
-        proffesion,
-        works
-      });
-      await profile.save();
-
-      res.status(200).json({status: "success"});
-    }
+    res.status(200).json({status: "success"});
   } catch {
     res.status(500).json({error: "Internal Server Error"});
   }
