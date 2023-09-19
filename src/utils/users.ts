@@ -1,7 +1,7 @@
 const users = [];
 
 //DATABASE
-const mongFollow = require('../schemas/follow');
+import { mongFollow } from '../schemas/follow';
 //
 
 //join user to chat 

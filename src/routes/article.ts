@@ -99,9 +99,9 @@ app.post("/api/post-article", async (req, res) => {
                 }
             }
         });
-
         res.status(200).json(articles);
-    } catch {
+    } catch(error) {
+        console.log(error);
         res.json("error");
     }
   });
