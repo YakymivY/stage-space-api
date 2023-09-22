@@ -10,7 +10,6 @@ if(process.env.NODE_ENV !== 'production') {
 //DATABASE
 import { mongUser } from '../schemas/users';
 import { mongProfile } from '../schemas/profile';
-import { mongCode } from '../schemas/codes'
 //
 
 //UTILS
@@ -21,12 +20,46 @@ const app = express();
 
 app.use(express.json());
 
-app.post('/create-user', async (req, res) => {
-  const { name, surname, email, password } = req.body;
-  const username = name + ' ' + surname;
-  const hashedPassword = await bcrypt.hash(password, 10);
+// app.post('/create-user', async (req, res) => {
+//   const { name, surname, email, password } = req.body;
+//   const username = name + ' ' + surname;
+//   const hashedPassword = await bcrypt.hash(password, 10);
 
+//   try {
+//     const user = new mongUser({
+//       email,
+//       password: hashedPassword,
+//       username
+//     });
+//     await user.save();
+
+//     const userId = user._id;
+//     const emailCode = Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000;
+//     const phoneCode = Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000;
+
+//     const code = new mongCode({
+//       userId, 
+//       emailCode,
+//       phoneCode
+//     });
+//     await code.save();
+
+//     res.status(200).json({status: "success", id: userId});
+//   } catch(error) {
+//     console.log(error);
+//     res.status(500).json({error: "Internal Server Error"});
+//   }
+// });
+
+//register.component -> auth.service
+app.post('/register', async (req, res) => {
   try {
+    const { email, password, name, surname, birthdate, institution, status, countryCode, phone, proffesion, works } = req.body.data;
+    const username = name + ' ' + surname;
+    const phoneNumber = countryCode + phone;
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    //save user's main info
     const user = new mongUser({
       email,
       password: hashedPassword,
@@ -34,29 +67,9 @@ app.post('/create-user', async (req, res) => {
     });
     await user.save();
 
-    const userId = user._id;
-    const emailCode = Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000;
-    const phoneCode = Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000;
+    const userId = user._id; //taking id of created user
 
-    const code = new mongCode({
-      userId, 
-      emailCode,
-      phoneCode
-    });
-    await code.save();
-
-    res.status(200).json({status: "success", id: userId});
-  } catch(error) {
-    console.log(error);
-    res.status(500).json({error: "Internal Server Error"});
-  }
-});
-
-//register.component -> auth.service
-app.post('/register', async (req, res) => {
-  try {
-    const { userId, name, surname, birthdate, institution, status, phone, proffesion, works } = req.body.data;
-    
+    //save users additional info
     const profile = new mongProfile ({
       userId,
       name,
@@ -64,7 +77,7 @@ app.post('/register', async (req, res) => {
       birthdate,
       institution, 
       status,
-      phone,
+      phoneNumber,
       proffesion,
       works
     });
