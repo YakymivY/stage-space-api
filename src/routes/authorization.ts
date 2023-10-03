@@ -98,14 +98,18 @@ app.post('/login', async (req, res) => {
       
     if (!inUsers) { 
       //no user with the email
-      res.status(400).json({status: "incorrect"});
+      res.json({status: "incorrect email"});
       return
     }
 
     const passwordCheck = await bcrypt.compare(password, inUsers.password); //password check
     if (!passwordCheck) { 
       //incorrect password detected
-      res.status(400).json({status: "incorrect"});
+      const filter = { _id: inUsers._id};
+      const update = { $inc: { login_attempts: 1 } };
+      await mongUser.updateOne(filter, update);
+      const obj = await mongUser.findOne(filter);
+      res.json({status: "incorrect password", attempts: obj.login_attempts});
     } else {
       const email = inUsers.email;
       const username = inUsers.username;
