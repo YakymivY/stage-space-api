@@ -5,6 +5,7 @@ import * as socketio from 'socket.io';
 //DATABASE
 import { mongRoom } from '../../../back/src/schemas/rooms';
 import { mongMessage } from '../../../back/src/schemas/messages';
+import { mongUser } from '../schemas/users';
 //
 
 //UTILS
@@ -13,7 +14,7 @@ import { formatMessage, formatPreviousMessages, formatImage } from '../utils/mes
 
 const app = express();
 
-if(process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config();
 }
 
@@ -23,8 +24,8 @@ export function chatSocket(server) {
 
     const io = new socketio.Server(server, {
         cors: {
-        origin: 'http://localhost:4201',
-        methods: ['GET', 'POST'],
+            origin: 'http://localhost:4201',
+            methods: ['GET', 'POST'],
         },
     });
 
@@ -38,12 +39,12 @@ export function chatSocket(server) {
     //CHAT STUFF
     //CHAT STUFF
     //CHAT STUFF
-    
+
     io.use((socket, next) => {
         const token = socket.handshake.query.token;
         //verify user by token
         if (token == null) return next(new Error('Authentication failed'));
-        if (typeof(token) === 'string') {
+        if (typeof (token) === 'string') {
             jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
                 if (err) return next(new Error('Authentication failed'));
                 socketUser = user;
@@ -62,11 +63,11 @@ export function chatSocket(server) {
             const senderId = socketUser.id;
             //const user = userJoin(socket.id, username, room);
             try {
-                const theRoom = await mongRoom.findOne({ participants: [senderId, receiverId] });
+                const theRoom = await mongRoom.findOne({ participants: { $all: [senderId, receiverId] } });
                 if (theRoom) {
                     roomId = theRoom._id;
                 } else {
-                //create new room in the db
+                    //create new room in the db
                     const newRoom = new mongRoom({
                         participants: [senderId, receiverId],
                     });
@@ -80,11 +81,18 @@ export function chatSocket(server) {
 
                 //get users from another collection
                 const roomWithParticipants = await mongRoom.findById(roomId)
-                .populate('participants', 'email username');
+                    .populate('participants', 'email username');
+
+                console.log(roomWithParticipants);
 
                 //initialize users
-                sender = roomWithParticipants.participants[0];
-                receiver = roomWithParticipants.participants[1];
+                //sender = roomWithParticipants.participants[0];
+                //receiver = roomWithParticipants.participants[1];
+
+                sender = await mongUser.findOne({ _id: senderId }).select('email username');
+                receiver = await mongUser.findOne({ _id: receiverId }).select('email username');
+
+                console.log(sender, receiver);
 
                 //bot greeting
                 socket.emit('message', formatMessage(botName, 'Welcome to StageSpace!'));
@@ -99,11 +107,11 @@ export function chatSocket(server) {
                     messages: formatPreviousMessages(prevMessages)
                 });
 
-            } catch(error) {
+            } catch (error) {
                 console.log(error);
             }
         });
-    
+
         //listen for chat message
         socket.on('chatMessage', async (message) => {
             //creating message object
@@ -117,20 +125,20 @@ export function chatSocket(server) {
                 room: roomId
             });
 
-            try{
+            try {
                 await msg.save();
-            } catch(error) {
+            } catch (error) {
                 console.log(error);
             }
 
             //sending object to frontend
             io.to(roomId).emit('message', messageObj);
         });
-    
+
         //listen for file massage
         socket.on('fileMessage', async (img: string) => {
             const imageObj = formatImage(sender.username, img);
-            
+
             //saving message with a photo to the db
             const imageMessage = new mongMessage({
                 sender: sender._id,
@@ -139,16 +147,16 @@ export function chatSocket(server) {
                 room: roomId
             });
 
-            try{
+            try {
                 await imageMessage.save();
-            } catch(error) {
+            } catch (error) {
                 console.log(error);
             }
 
             //sending photo object to frontend
             io.to(roomId).emit('message-photo', imageObj);
         })
-    
+
         //runs when client disconnects 
         socket.on('disconnect', () => {
 
