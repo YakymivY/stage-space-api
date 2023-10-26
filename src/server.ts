@@ -55,7 +55,7 @@ app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true, parameterLimit: 50000 }));
 app.use(cors({ origin: 'http://localhost:4201' }));
 connectDB();
-app.use('/api', authenticateToken);
+app.use('/api', authenticateToken); // authentication middleware (utils/auth.ts)
 chatSocket(server);
 app.use(articleRoute);
 app.use(authRoute);
