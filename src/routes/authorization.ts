@@ -2,7 +2,6 @@ import express from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
-import { Request, Response } from 'express';
 
 if(process.env.NODE_ENV !== 'production') {
     require('dotenv').config();
@@ -135,7 +134,7 @@ app.post('/login', async (req, res) => {
 
 //header.component, new-article.component, my-profile.component -> auth.service
 //send info from token to client
-app.get('/api/get-token-user', (req: Request, res) => {
+app.get('/api/get-token-user', (req, res) => {
   const username = req.user.name;
   const id = req.user.id;
   const email = req.user.email;
