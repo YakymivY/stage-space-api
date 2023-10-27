@@ -3,8 +3,8 @@ import jwt from 'jsonwebtoken';
 import * as socketio from 'socket.io';
 
 //DATABASE
-import { mongRoom } from '../../../back/src/schemas/rooms';
-import { mongMessage } from '../../../back/src/schemas/messages';
+import { mongRoom } from '../schemas/rooms';
+import { mongMessage } from '../schemas/messages';
 import { mongUser } from '../schemas/users';
 //
 
